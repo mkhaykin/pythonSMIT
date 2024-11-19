@@ -42,10 +42,11 @@ class RatesModel(RootModel[dict[date, list[RateItemModel]]]):
 class RateQuery(BaseModel):
     date: date
     cargo_type: str
+    cost: Decimal
 
 
 class RateResponse(BaseModel):
-    rate: Decimal
+    tariff: Decimal
 
 
 class Message(BaseModel):

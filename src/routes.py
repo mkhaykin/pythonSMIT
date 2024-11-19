@@ -34,11 +34,11 @@ async def add_rates(
 
 
 @router.get(
-    path="/rate",
+    path="/tariff",
     status_code=status.HTTP_200_OK,
     response_model=models.RateQuery,
 )
-async def rate(
+async def tariff(
     param: Annotated[models.RateQuery, Query()],
 ) -> models.RateResponse:
     print(param)
@@ -58,7 +58,7 @@ async def rate(
     for item in result_rates:
         if item.cargo_type == param.cargo_type:
             return models.RateResponse(
-                rate=item.rate,
+                tariff=item.rate * param.cost,
             )
 
     raise HTTPException(
