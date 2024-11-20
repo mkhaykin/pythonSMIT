@@ -1,42 +1,39 @@
-"""
-JSON
-{
-    "2020-06-01": [
-        {
-            "cargo_type": "Glass",
-            "rate": "0.04"
-        },
-        {
-            "cargo_type": "Other",
-            "rate": "0.01"
-        }
-    ],
-    "2020-07-01": [
-        {
-            "cargo_type": "Glass",
-            "rate": "0.035"
-        },
-        {
-            "cargo_type": "Other",
-            "rate": "0.015"
-        }
-    ]
-}
-"""
-
 from datetime import date
 from decimal import Decimal
 
-from pydantic import BaseModel, RootModel
+from pydantic import BaseModel, Field, RootModel
+
+EXAMPLE = {
+    date(2020, 6, 1): [
+        {
+            "cargo_type": "Glass",
+            "rate": Decimal("0.04"),
+        },
+        {
+            "cargo_type": "Other",
+            "rate": Decimal("0.01"),
+        },
+    ],
+    date(2020, 7, 1): [
+        {
+            "cargo_type": "Glass",
+            "rate": Decimal("0.035"),
+        },
+        {
+            "cargo_type": "Other",
+            "rate": Decimal("0.015"),
+        },
+    ],
+}
 
 
 class RateItemModel(BaseModel):
-    cargo_type: str
-    rate: Decimal
+    cargo_type: str = Field(examples=["Glass", "Other"])
+    rate: Decimal = Field(examples=["0.01", "0.015"])
 
 
-class RatesModel(RootModel[dict[date, list[RateItemModel]]]):
-    pass
+class RatesModel(RootModel):
+    root: dict[date, list[RateItemModel]] = Field(examples=[EXAMPLE])
 
 
 class RateQuery(BaseModel):
@@ -44,9 +41,9 @@ class RateQuery(BaseModel):
     Запрос тарифа на стоимость
     """
 
-    date: date
-    cargo_type: str
-    cost: Decimal
+    date_rate: date = Field(examples=[date(2024, 1, 1)])
+    cargo_type: str = Field(examples=["Glass"])
+    cost: Decimal = Field(examples=["0.01"])
 
 
 class RateResponse(BaseModel):
@@ -54,8 +51,8 @@ class RateResponse(BaseModel):
     Ответ на запрос
     """
 
-    tariff: Decimal
+    tariff: Decimal = Field(examples=["0.01"])
 
 
 class Message(BaseModel):
-    detail: str
+    detail: str = Field(examples=["message"])
