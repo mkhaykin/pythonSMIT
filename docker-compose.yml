@@ -20,6 +20,24 @@ services:
       timeout: 1s
       retries: 3
 
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smit_api
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      PYTHONPATH: "${PYTHONPATH}:src"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: uvicorn src.app:app --reload --workers 1 --host 0.0.0.0 --port 8000
+
 networks:
   default:
       name: lan_smit
