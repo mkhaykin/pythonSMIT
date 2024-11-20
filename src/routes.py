@@ -1,10 +1,13 @@
 from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, status
-from fastapi.params import Query
+from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 import models
+import services
+from src.database.async_db import get_async_db
+from src.services import RateItem
 
 FAKE_RATES: dict[date, list[models.RateItemModel]] = {}
 
@@ -16,8 +19,10 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
     response_model=models.RatesModel,
 )
-async def rates() -> models.RatesModel:
-    return models.RatesModel(FAKE_RATES)
+async def rates(
+    session: AsyncSession = Depends(get_async_db),
+) -> models.RatesModel:
+    return (await services.get_rates(session=session)).model_dump()
 
 
 @router.post(
@@ -27,41 +32,30 @@ async def rates() -> models.RatesModel:
 )
 async def add_rates(
     data: models.RatesModel,
+    session: AsyncSession = Depends(get_async_db),
 ) -> models.Message:
-    FAKE_RATES.clear()
-    FAKE_RATES.update(data.root)
-    return models.Message(detail="ok")
+    return await services.add_rates(
+        [
+            RateItem(key, item.cargo_type, item.rate)
+            for key, value in data.root.items()
+            for item in value
+        ],
+        session=session,
+    )
 
 
 @router.get(
     path="/tariff",
     status_code=status.HTTP_200_OK,
-    response_model=models.RateQuery,
+    response_model=models.RateResponse,
 )
 async def tariff(
     param: Annotated[models.RateQuery, Query()],
+    session: AsyncSession = Depends(get_async_db),
 ) -> models.RateResponse:
-    print(param)
-    result_rates: list[models.RateItemModel] | None = None
-
-    for _date in sorted(FAKE_RATES):
-        if _date > param.date:
-            break
-        result_rates = FAKE_RATES[_date]
-
-    if result_rates is None:
-        raise HTTPException(
-            status.HTTP_404_NOT_FOUND,
-            "Нет действующего тарифа.",
-        )
-
-    for item in result_rates:
-        if item.cargo_type == param.cargo_type:
-            return models.RateResponse(
-                tariff=item.rate * param.cost,
-            )
-
-    raise HTTPException(
-        status.HTTP_404_NOT_FOUND,
-        "Нет действующего тарифа.",
+    return await services.get_tariff(
+        rate_date=param.date,
+        cargo_type=param.cargo_type,
+        cost=param.cost,
+        session=session,
     )

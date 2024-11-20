@@ -40,12 +40,20 @@ class RatesModel(RootModel[dict[date, list[RateItemModel]]]):
 
 
 class RateQuery(BaseModel):
+    """
+    Запрос тарифа на стоимость
+    """
+
     date: date
     cargo_type: str
     cost: Decimal
 
 
 class RateResponse(BaseModel):
+    """
+    Ответ на запрос
+    """
+
     tariff: Decimal
 
 
