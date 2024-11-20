@@ -55,7 +55,7 @@ async def get_rates(
     for row in rows:
         result.setdefault(row.Rate.rate_date, []).append(
             models.RateItemModel(
-                cargo_type=row.Rate.cargo_type,
+                cargo_type=row.Rate.cargo_type.capitalize(),
                 rate=row.Rate.rate_value,
             ),
         )
@@ -73,7 +73,7 @@ async def get_tariff(
 ) -> models.RateResponse:
     stmt = (
         select(Rate.rate_value)
-        .where(Rate.cargo_type == cargo_type, Rate.rate_date <= rate_date)
+        .where(Rate.cargo_type == cargo_type.lower(), Rate.rate_date <= rate_date)
         .order_by(Rate.rate_date.desc())
         .limit(1)
     )

@@ -36,7 +36,7 @@ async def add_rates(
 ) -> models.Message:
     return await services.add_rates(
         [
-            RateItem(key, item.cargo_type, item.rate)
+            RateItem(key, item.cargo_type.lower(), item.rate)
             for key, value in data.root.items()
             for item in value
         ],
