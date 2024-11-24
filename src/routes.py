@@ -1,11 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import models
 import services
 from src.database.async_db import get_async_db
+from src.kafka.producer import send_log
 from src.services import RateItem
 
 router = APIRouter()
@@ -33,9 +34,11 @@ async def rates(
 )
 async def add_rates(
     data: models.RatesModel,
+    background_tasks: BackgroundTasks,
+    user_id: str | None = None,
     session: AsyncSession = Depends(get_async_db),
 ) -> models.Message:
-    return await services.add_rates(
+    result = await services.add_rates(
         [
             RateItem(key, item.cargo_type.lower(), item.rate)
             for key, value in data.root.items()
@@ -43,6 +46,10 @@ async def add_rates(
         ],
         session=session,
     )
+
+    background_tasks.add_task(send_log, user=user_id, action="Clear and load rates.")
+
+    return result
 
 
 @router.get(

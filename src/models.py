@@ -56,3 +56,37 @@ class RateResponse(BaseModel):
 
 class Message(BaseModel):
     detail: str = Field(examples=["message"])
+
+
+class _BaseRateModel(BaseModel):
+    """
+    Тариф на стоимость
+    """
+
+    date_rate: date = Field(examples=[date(2024, 1, 1)])
+    cargo_type: str = Field(examples=["Glass", "Other"])
+    rate: Decimal = Field(examples=["0.01", "0.015"])
+
+
+class GetRateModel(_BaseRateModel):
+    """
+    Тариф на стоимость
+    """
+
+    rate_id: int = Field(examples=[1, 2, 4])
+
+
+class CreateRateModel(_BaseRateModel):
+    """
+    Тариф на стоимость
+    """
+
+    pass
+
+
+class UpdateRateModel(_BaseRateModel):
+    """
+    Тариф на стоимость
+    """
+
+    pass
