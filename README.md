@@ -63,6 +63,11 @@ Postgres в отдельном контейнере, порт задается �
 - `POSTGRES_USER` - пользователь
 - `POSTGRES_PASSWORD` - пароль
 
+- `KAFKA_HOST` - имя хоста
+- `KAFKA_PORT` - порт
+- `KAFKA_TOPIC` - топик
+- `KAFKA_CONSUMER_GROUP` - группа
+
 ### Запуск через docker:
 ```sh
 docker-compose up -d
