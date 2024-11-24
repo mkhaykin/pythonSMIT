@@ -4,7 +4,7 @@
 Требуется реализовать REST API сервис по расчёту стоимости страхования в зависимости от типа груза и объявленной
 стоимости (ОС). [Полное описание](docs/Python_SMIT.pdf).
 
-Стек: FastApi, SqlAlchemy, Postgresql, Docker, Docker-compose.
+Стек: FastApi, SqlAlchemy, Postgresql, Kafka, Docker, Docker-compose.
 
 Upd:
 Дополнить реализацию:
